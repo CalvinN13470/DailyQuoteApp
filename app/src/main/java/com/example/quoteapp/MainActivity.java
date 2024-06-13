@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.view.View;
 import android.widget.Toast;
+import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,8 +16,16 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,28 +41,93 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void generateQuote (View view) {
-//        TextView quoteBox = findViewById(R.id.quoteBox);
+    //TODO: Add Callback Interface Functionality to ensure returnable ArrayList
+    public ArrayList<String> getFilters(){
+
+        String url = "https://api.quotable.io/tags";
+        RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+
+        ArrayList<String> filterList = new ArrayList<String>();
+        JsonArrayRequest filterRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+
+            public void onResponse(JSONArray response) {
+                for (int i = 0 ; i < response.length() ; i++){
+
+                    try {
+
+                        JSONObject tag = new JSONObject(response.get(i).toString());
+                        //Log.i("My Messages", tag.get("name").toString());
+                        filterList.add(tag.get("name").toString());
+
+                    } catch (JSONException e) {
+                        Log.e("My Errors", "Can not create JSONObject for filter");
+                    }
+
+                }
+
+                for (int i = 0 ; i < filterList.size() ; i++){
+                    Log.i("My Messages", filterList.get(i));
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("My Errors", "Error getting filters");
+            }
+        });
+
+        queue.add(filterRequest);
+
+        return filterList;
+
+    }
+
+    public void generateRandomQuote (View view) {
+        TextView quoteBox = findViewById(R.id.quoteBox);
 //        quoteBox.setText("This here is a quote");
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
+
         String url = "https://api.quotable.io/random";
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
-                    }
-                }, new Response.ErrorListener() {
+        ArrayList<String> filters = getFilters();
+
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    quoteBox.setText(response.get("content").toString());
+                } catch (JSONException e) {
+                    Toast.makeText(MainActivity.this, "Error Printing Quote", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, "Error with Volley", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Something is wrong", Toast.LENGTH_SHORT).show();
             }
         });
 
+
+
+
+        // Request a string response from the provided URL.
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Toast.makeText(MainActivity.this, "Error with Volley", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
         // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+//        queue.add(request);
     }
 }
