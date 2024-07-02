@@ -24,11 +24,39 @@
         android:id="@+id/genQuoteBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Generate"
         android:onClick="generateRandomQuote"
+        android:text="Generate"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quoteBox" />
+        app:layout_constraintTop_toBottomOf="@+id/quoteBox"
+        app:layout_constraintVertical_bias="0.625" />
+
+    <ScrollView
+        android:id="@+id/filterView"
+        android:layout_width="317dp"
+        android:layout_height="187dp"
+        app:layout_constraintBottom_toTopOf="@+id/genQuoteBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quoteBox">
+
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/filterChips"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:layout_editor_absoluteX="143dp"
+                tools:layout_editor_absoluteY="600dp">
+
+            </com.google.android.material.chip.ChipGroup>
+
+    </ScrollView>
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

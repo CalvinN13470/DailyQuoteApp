@@ -1,6 +1,9 @@
 package com.example.quoteapp;
 
 import android.os.Bundle;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.view.View;
 import android.widget.Toast;
@@ -20,12 +23,15 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,9 +45,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        getFilters();
     }
 
-    //TODO: Add Callback Interface Functionality to ensure returnable ArrayList
     public ArrayList<String> getFilters(){
 
         String url = "https://api.quotable.io/tags";
@@ -49,8 +55,10 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<String> filterList = new ArrayList<String>();
         JsonArrayRequest filterRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
-            @Override
 
+            ChipGroup filterChips = findViewById(R.id.filterChips);
+
+            @Override
             public void onResponse(JSONArray response) {
                 for (int i = 0 ; i < response.length() ; i++){
 
@@ -67,6 +75,11 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 for (int i = 0 ; i < filterList.size() ; i++){
+                    Chip categoryChip = new Chip(MainActivity.this);
+                    categoryChip.setText(filterList.get(i));
+                    categoryChip.setCheckable(true);
+                    filterChips.addView(categoryChip);
+
                     Log.i("My Messages", filterList.get(i));
                 }
 
@@ -85,15 +98,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void generateRandomQuote (View view) {
+
         TextView quoteBox = findViewById(R.id.quoteBox);
-//        quoteBox.setText("This here is a quote");
+        ChipGroup filterChips = findViewById(R.id.filterChips);
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
 
         String url = "https://api.quotable.io/random";
 
-        ArrayList<String> filters = getFilters();
+        String selectedFilters = "";
+        List<Integer> chipIds = filterChips.getCheckedChipIds();
+        for (Integer id:chipIds){
+            Chip checkChip = filterChips.findViewById(id);
+            selectedFilters = selectedFilters + checkChip.getText();
+        }
+
+        quoteBox.setText(selectedFilters);
 
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
