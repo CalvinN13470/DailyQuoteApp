@@ -9,23 +9,24 @@
 
     <TextView
         android:id="@+id/quoteBox"
-        android:layout_width="280dp"
-        android:layout_height="116dp"
+        android:layout_width="331dp"
+        android:layout_height="180dp"
         android:background="#D7D3D3"
-        android:text="Hello World!"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="15dp"
+        android:text="@string/welcome_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.235" />
+        app:layout_constraintVertical_bias="0.206" />
 
     <Button
         android:id="@+id/genQuoteBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="generateRandomQuote"
-        android:text="Generate"
+        android:text="@string/genBtnLabel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -35,28 +36,39 @@
 
     <ScrollView
         android:id="@+id/filterView"
-        android:layout_width="317dp"
-        android:layout_height="187dp"
+        android:layout_width="318dp"
+        android:layout_height="162dp"
         app:layout_constraintBottom_toTopOf="@+id/genQuoteBtn"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quoteBox">
+        app:layout_constraintTop_toBottomOf="@+id/quoteBox"
+        app:layout_constraintVertical_bias="0.802">
 
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/filterChips"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:layout_editor_absoluteX="143dp"
-                tools:layout_editor_absoluteY="600dp">
-
-            </com.google.android.material.chip.ChipGroup>
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/filterChips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteX="143dp"
+            tools:layout_editor_absoluteY="600dp">
+        </com.google.android.material.chip.ChipGroup>
 
     </ScrollView>
 
-
+    <ToggleButton
+        android:id="@+id/toggleAndOr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/toggle_and_or"
+        android:textOff="@string/toggleOff"
+        android:textOn="@string/toggleOn"
+        app:layout_constraintBottom_toTopOf="@+id/filterView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quoteBox" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

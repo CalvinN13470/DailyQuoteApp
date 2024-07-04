@@ -1,13 +1,11 @@
 package com.example.quoteapp;
 
 import android.os.Bundle;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.view.View;
 import android.widget.Toast;
 import android.util.Log;
+import android.widget.ToggleButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +19,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -48,18 +45,20 @@ public class MainActivity extends AppCompatActivity {
         getFilters();
     }
 
-    public ArrayList<String> getFilters(){
+    public void getFilters(){
 
+        //TODO: Exclude empty filters (Ex. Athletics)
         String url = "https://api.quotable.io/tags";
         RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
 
-        ArrayList<String> filterList = new ArrayList<String>();
+        ArrayList<String> filterList = new ArrayList<>();
         JsonArrayRequest filterRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
 
-            ChipGroup filterChips = findViewById(R.id.filterChips);
+            final ChipGroup filterChips = findViewById(R.id.filterChips);
 
             @Override
             public void onResponse(JSONArray response) {
+
                 for (int i = 0 ; i < response.length() ; i++){
 
                     try {
@@ -84,16 +83,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("My Errors", "Error getting filters");
-            }
-        });
+
+        }, (VolleyError error) -> Log.e("My Errors", "Error getting filters"));
 
         queue.add(filterRequest);
-
-        return filterList;
 
     }
 
@@ -107,48 +100,65 @@ public class MainActivity extends AppCompatActivity {
 
         String url = "https://api.quotable.io/random";
 
-        String selectedFilters = "";
         List<Integer> chipIds = filterChips.getCheckedChipIds();
-        for (Integer id:chipIds){
-            Chip checkChip = filterChips.findViewById(id);
-            selectedFilters = selectedFilters + checkChip.getText();
+
+        if (!chipIds.isEmpty()) {
+
+            ToggleButton toggleAndOr = findViewById(R.id.toggleAndOr);
+            url = url + "?tags=";
+            String delimiter;
+
+            if (toggleAndOr.isChecked()){
+                delimiter = ",";
+            }
+            else{
+                delimiter = "|";
+            }
+
+            for (Integer id : chipIds) {
+                Chip checkChip = filterChips.findViewById(id);
+                url = url.concat(checkChip.getText().toString()).concat(delimiter);
+            }
+
+            //remove trailing delimiter
+            url = url.substring(0, url.length() - 1);
+
         }
 
-        quoteBox.setText(selectedFilters);
+        Log.i("API request", url);
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, (JSONObject response) -> {
+            try {
 
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    quoteBox.setText(response.get("content").toString());
-                } catch (JSONException e) {
-                    Toast.makeText(MainActivity.this, "Error Printing Quote", Toast.LENGTH_SHORT).show();
-                }
+                String quoteText = response.get("content") + "\n\n- " + response.get("author");
+                quoteBox.setText(quoteText);
+
+            } catch (JSONException e) {
+
+                Toast.makeText(MainActivity.this, "Error Printing Quote", Toast.LENGTH_SHORT).show();
+
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, "Something is wrong", Toast.LENGTH_SHORT).show();
+        }, (VolleyError error) -> {
+            String responseBody = new String(error.networkResponse.data);
+            try {
+
+                String errMsg;
+                JSONObject errResponse = new JSONObject(responseBody);
+                if ((int)(errResponse.get("statusCode")) == 404){
+                    errMsg = "404: No Quote Found";
+                }
+                else{
+                    errMsg = errResponse.get("statusCode") + ": " + errResponse.get("statusMessage");
+                }
+                quoteBox.setText(errMsg);
+
+            } catch (JSONException e) {
+
+                throw new RuntimeException(e);
+
             }
         });
 
+        queue.add(request);
 
-
-
-        // Request a string response from the provided URL.
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        Toast.makeText(MainActivity.this, response, Toast.LENGTH_SHORT).show();
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Toast.makeText(MainActivity.this, "Error with Volley", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
-        // Add the request to the RequestQueue.
-//        queue.add(request);
     }
 }

@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">QuoteApp</string>
+    <string name="app_name">Quote Generator</string>
+    <string name="welcome_text">Try Generating a Quote!</string>
+    <string name="genBtnLabel">Generate</string>
+    <string name="toggleOff">OR</string>
+    <string name="toggleOn">AND</string>
 </resources>
