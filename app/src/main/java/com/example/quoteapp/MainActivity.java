@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void getFilters(){
 
-        //TODO: Exclude empty filters (Ex. Athletics)
         String url = "https://api.quotable.io/tags";
         RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
 
